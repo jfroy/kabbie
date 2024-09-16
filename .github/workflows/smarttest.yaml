@@ -40,7 +40,7 @@ jobs:
       - name: Cosign
         id: cosign
         run: |
-          cosign sign --yes ghcr.io//${{ github.actor }}/smarttest@${{ steps.build-push.outputs.DIGEST }}
+          cosign sign --yes ghcr.io/${{ github.actor }}/smarttest@${{ steps.build-push.outputs.DIGEST }}
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v1
         with:
