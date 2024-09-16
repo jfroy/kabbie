@@ -42,7 +42,7 @@ func GetStorageDevices() ([]string, error) {
 // RunSmartTest initiates a SMART test (short or long) on the given device
 func RunSmartTest(device, testType string) error {
 	fmt.Printf("Running %s SMART test on %s...\n", testType, device)
-	cmd := exec.Command("sudo", "smartctl", "-t", testType, "-j", device)
+	cmd := exec.Command("smartctl", "-t", testType, "-j", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("error running smartctl on %s: %v", device, err)
