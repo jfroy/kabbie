@@ -36,6 +36,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           push: true
+          tags: ghcr.io/${{ github.actor }}/smarttest:latest
       - name: Cosign
         id: cosign
         run: |
