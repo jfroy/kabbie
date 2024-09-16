@@ -9,9 +9,7 @@ import (
 )
 
 type Device struct {
-	Device struct {
-		Name string `json:"name"`
-	} `json:"device"`
+	Name string `json:"name"`
 }
 
 type ScanResult struct {
@@ -34,7 +32,7 @@ func GetStorageDevices() ([]string, error) {
 
 	var devices []string
 	for _, device := range scanResult.Devices {
-		devices = append(devices, device.Device.Name)
+		devices = append(devices, device.Name)
 	}
 	return devices, nil
 }
