@@ -1,4 +1,4 @@
-name: release
+name: smarttest
 on:
   push:
 permissions:
@@ -9,10 +9,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.6.0
       - name: Set up QEMU
@@ -26,14 +22,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get version
-        id: version
-        run: |
-          VERSION=sha-${GITHUB_SHA::8}
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF/refs\/tags\//}
-          fi
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
       - name: Get container metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -44,12 +32,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./smarttest
-          file: ./Dockerfile
+          context: "{{defaultContext}}:smarttest"
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.actor }}/smarttest:${{ steps.version.outputs.VERSION }}
       - name: Cosign
         id: cosign
         run: |
