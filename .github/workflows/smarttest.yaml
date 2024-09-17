@@ -10,8 +10,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.6.0
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -23,25 +21,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get container metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.actor }}/smarttest
       - name: Build and push
         id: build-push
         uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: "{{defaultContext}}:smarttest"
-          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/${{ github.actor }}/smarttest:latest
-      - name: Cosign
-        id: cosign
-        run: |
-          cosign sign --yes ghcr.io/${{ github.actor }}/smarttest@${{ steps.build-push.outputs.digest }}
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v1
         with:
