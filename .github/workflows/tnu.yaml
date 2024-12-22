@@ -28,9 +28,10 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: "{{defaultContext}}:tnu"
           platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/${{ github.actor }}/tnu:latest
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ghcr.io/${{ github.repository_owner }}/tnu:latest
       - name: Attest build provenance
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: "ghcr.io/${{ github.actor }}/tnu"
