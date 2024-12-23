@@ -44,11 +44,11 @@ func main() {
 	if !ok {
 		panic("not a reference.NamedTagged")
 	}
-	v, err := c.Version(ctx)
+	vresp, err := c.Version(ctx)
 	if err != nil {
 		panic(err)
 	}
-	if v.Messages[0].GetVersion().GetTag() == tag {
+	if vresp.Messages[0].GetVersion().GetTag() == tag {
 		log.Printf("version is already %s", tag)
 		os.Exit(0)
 	}
@@ -57,7 +57,7 @@ func main() {
 		panic(err)
 	}
 	log.Printf("upgrading to %s", ntref)
-	resp, err := c.UpgradeWithOptions(ctx,
+	uresp, err := c.UpgradeWithOptions(ctx,
 		client.WithUpgradeImage(ntref.String()),
 		client.WithUpgradePreserve(true),
 		client.WithUpgradeStage(true),
@@ -65,5 +65,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("upgrade started: %s\n", resp.GetMessages()[0].String())
+	fmt.Printf("upgrade started: %s\n", uresp.GetMessages()[0].String())
+	<-make(chan int, 1)
 }
