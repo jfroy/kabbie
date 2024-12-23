@@ -32,7 +32,7 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/smarttest:latest
       - name: Attest build provenance
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: "ghcr.io/${{ github.actor }}/smarttest"
           subject-digest: ${{ steps.build-push.outputs.digest }}
