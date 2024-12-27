@@ -5,7 +5,7 @@ go 1.23.3
 toolchain go1.23.4
 
 require (
-	github.com/cosi-project/runtime v0.8.1
+	github.com/cosi-project/runtime v0.9.0
 	github.com/distribution/reference v0.6.0
 	github.com/siderolabs/talos/pkg/machinery v1.9.0
 )
