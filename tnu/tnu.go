@@ -10,6 +10,7 @@ import (
 	"github.com/distribution/reference"
 	"github.com/siderolabs/talos/pkg/machinery/client"
 	"github.com/siderolabs/talos/pkg/machinery/resources/config"
+	"github.com/siderolabs/talos/pkg/machinery/resources/k8s"
 )
 
 func main() {
@@ -22,12 +23,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	var rns resource.Namespace
-	rd, err := c.ResolveResourceKind(ctx, &rns, "MachineConfig")
+
+	r, err := c.COSI.Get(ctx, resource.NewMetadata("k8s", "Nodenames.kubernetes.talos.dev", "nodename", resource.VersionUndefined))
 	if err != nil {
 		panic(err)
 	}
-	r, err := c.COSI.Get(ctx, resource.NewMetadata(rns, rd.TypedSpec().Type, "v1alpha1", resource.VersionUndefined))
+	nn, ok := r.(*k8s.Nodename)
+	if !ok {
+		panic("not a k8s.Nodename")
+	}
+
+	r, err = c.COSI.Get(ctx, resource.NewMetadata("config", "MachineConfigs.config.talos.dev", "v1alpha1", resource.VersionUndefined))
 	if err != nil {
 		panic(err)
 	}
@@ -35,6 +41,7 @@ func main() {
 	if !ok {
 		panic("not a config.MachineConfig")
 	}
+
 	image := mc.Config().Machine().Install().Image()
 	ref, err := reference.ParseAnyReference(image)
 	if err != nil {
@@ -56,7 +63,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("upgrading to %s", ntref)
+
+	log.Printf("upgrading %s to %s", nn.TypedSpec().Nodename, ntref)
 	uresp, err := c.UpgradeWithOptions(ctx,
 		client.WithUpgradeImage(ntref.String()),
 		client.WithUpgradePreserve(true),
