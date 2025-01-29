@@ -14,11 +14,11 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	if len(os.Args) < 2 || len(os.Args[1]) == 0 {
-		log.Fatal("usage: tnu <tag>")
+	if len(os.Args) < 3 || len(os.Args[1]) == 0 || len(os.Args[2]) == 0 {
+		log.Fatal("usage: tnu <node> <tag>")
 	}
-	tag := os.Args[1]
+	tag := os.Args[2]
+	ctx := client.WithNode(context.Background(), os.Args[1])
 	c, err := client.New(ctx, client.WithDefaultConfig())
 	if err != nil {
 		panic(err)
