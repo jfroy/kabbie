@@ -9,6 +9,7 @@ import (
 
 	"github.com/cosi-project/runtime/pkg/resource"
 	"github.com/distribution/reference"
+	machineapi "github.com/siderolabs/talos/pkg/machinery/api/machine"
 	"github.com/siderolabs/talos/pkg/machinery/client"
 	"github.com/siderolabs/talos/pkg/machinery/resources/config"
 	"github.com/siderolabs/talos/pkg/machinery/resources/k8s"
@@ -16,14 +17,33 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+
+	flag "github.com/spf13/pflag"
 )
 
 func main() {
-	if len(os.Args) < 3 || len(os.Args[1]) == 0 || len(os.Args[2]) == 0 {
-		log.Fatal("usage: tnu <node> <tag>")
+	var rebootModeF string
+	flag.StringVarP(&rebootModeF, "reboot-mode", "m", "default", "select the reboot mode during upgrade. Mode powercycle bypasses kexec. Valid values are: default, powercycle.")
+	flag.Usage = func() {
+		log.Printf("usage: tnu <node> <tag>\n%s", flag.CommandLine.FlagUsages())
 	}
-	nodename := os.Args[1]
-	tag := os.Args[2]
+	flag.Parse()
+	if flag.NArg() != 2 {
+		log.Fatalf("usage: tnu <node> <tag>\n%s", flag.CommandLine.FlagUsages())
+	}
+	var rebootMode machineapi.UpgradeRequest_RebootMode
+	switch rebootModeF {
+	case "default":
+		rebootMode = machineapi.UpgradeRequest_DEFAULT
+	case "powercycle":
+		rebootMode = machineapi.UpgradeRequest_POWERCYCLE
+	default:
+		log.Printf("invalid reboot mode: %s", rebootModeF)
+		log.Fatalf("usage: tnu <node> <tag>\n%s", flag.CommandLine.FlagUsages())
+	}
+
+	nodename := flag.Arg(0)
+	tag := flag.Arg(1)
 	ctx := client.WithNode(context.Background(), nodename)
 	c, err := client.New(ctx, client.WithDefaultConfig())
 	if err != nil {
@@ -81,6 +101,7 @@ func main() {
 		client.WithUpgradeImage(ntref.String()),
 		client.WithUpgradePreserve(true),
 		client.WithUpgradeStage(true),
+		client.WithUpgradeRebootMode(rebootMode),
 	)
 	if err != nil {
 		panic(err)
