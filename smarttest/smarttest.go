@@ -58,13 +58,13 @@ func RunSmartTest(device, testType string) error {
 }
 
 func main() {
-	// Define a command-line flag for selecting the test type (short or long)
-	testType := flag.String("test", "short", "SMART test type to run (short or long)")
+	// Define a command-line flag for selecting the test type
+	testType := flag.String("test", "short", "SMART test type to run")
 	flag.Parse()
 
 	// Validate the input for test type
-	if *testType != "short" && *testType != "long" {
-		log.Fatalf("Invalid test type: %s. Please use 'short' or 'long'.", *testType)
+	if *testType != "short" && *testType != "long" && *testType != "conveyance" {
+		log.Fatalf("Invalid test type: %s. Please use 'short', 'long', or 'conveyance'.", *testType)
 	}
 
 	// Get the list of detected devices
@@ -78,7 +78,7 @@ func main() {
 		return
 	}
 
-	// Run the specified SMART test (short or long) on each detected device
+	// Run the specified SMART test on each detected device
 	for _, device := range devices {
 		err := RunSmartTest(device, *testType)
 		if err != nil {
